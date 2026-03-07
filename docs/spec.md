@@ -83,6 +83,7 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
 - API responses should be deterministic where feasible for testability
 - Structured logs for backend services
 - Basic input validation and safe error handling
+- Frontend E2E coverage using Cypress for critical workflow skeleton behavior
 
 ## 6. Technical Architecture
 ### Frontend
@@ -138,12 +139,16 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
 
 ## 9. Testing Strategy
 - Use `pytest` for backend tests
+- Use Cypress for frontend E2E tests
 - Prioritize tests for:
   - Auth and token validation
   - Core profile ingestion/refinement behavior
   - Job dedup/newness logic
   - Decision state transitions
   - Artifact version incrementing rules
+- Include at least one E2E test that validates:
+  - App boot and stage visibility
+  - Auto-login request behavior from frontend to backend auth endpoint
 - Keep tests concise and value-focused
 
 ## 10. Open Decisions

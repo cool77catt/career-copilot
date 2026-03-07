@@ -1,0 +1,65 @@
+export const appPalette = {
+  core: {
+    canvas: "#edf2f8",
+    surface: "#ffffff",
+    title: "#13243d",
+    shadowBase: "#183c68",
+  },
+  sidebar: {
+    text: "#e6edf8",
+    titleText: "#f2f6ff",
+    border: "#9db6db",
+    divider: "#c1d5f5",
+    dot: "#c84dff",
+    dotGlow: "rgba(200, 77, 255, 0.85)",
+    backgroundGradient:
+      "linear-gradient(180deg, rgba(17,26,43,0.96) 0%, rgba(15,23,38,0.96) 42%, rgba(10,17,30,0.98) 100%), radial-gradient(circle at 25% 12%, rgba(107,205,255,0.14) 0%, rgba(107,205,255,0) 44%), radial-gradient(circle at 70% 68%, rgba(82,116,184,0.12) 0%, rgba(82,116,184,0) 40%)",
+    nav: {
+      base: "#e9f2ff",
+      border: "#c7d9f5",
+      activeStart: "#43c3ee",
+      activeEnd: "#2ea9d7",
+      activeBorder: "rgba(134, 233, 255, 0.55)",
+      activeShadow: "rgba(67, 195, 238, 0.38)",
+      iconText: "#d4e3fa",
+      iconTextActive: "#0e2b39",
+      iconBg: "#d8e7ff",
+      iconBgActive: "#f6fcff",
+      label: "#d7e3f5",
+      labelActive: "#f5fbff",
+    },
+  },
+  status: {
+    info: {
+      border: "#c9d9f7",
+      bg: "#e9f2ff",
+      text: "#244369",
+    },
+    error: {
+      border: "#d9cdfa",
+      bg: "#f1ecff",
+      text: "#453a73",
+      icon: "#6c4ed9",
+    },
+  },
+  metrics: {
+    profileCompleteness: "#4f7cff",
+    weeklyMatches: "#36b9d9",
+    openDecisions: "#c84dff",
+    generatedAssets: "#4ea3f1",
+  },
+  panels: {
+    profileGrowth: "#4d7eff",
+    matchVelocity: "#33b6d6",
+    applicationReadiness: "#be4dff",
+  },
+  mui: {
+    primary: "#0f6fff",
+    primaryDark: "#0d54c2",
+    secondary: "#36b9d9",
+    textPrimary: "#122235",
+    textSecondary: "#5c6f88",
+    backgroundDefault: "#eef4fb",
+    backgroundPaper: "#ffffff",
+  },
+} as const;

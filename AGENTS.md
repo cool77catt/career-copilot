@@ -19,6 +19,7 @@ This repository builds a full-stack application that helps a user:
 - Auth: JWT-based authentication
 - Packaging/Runtime: Dockerized backend service(s), runnable on macOS/Linux
 - Tests: pytest for backend APIs/services/db functions
+- E2E: Cypress for frontend end-to-end tests
 
 ## Delivery Rules
 - Build in small, reviewable increments tied to `docs/plan.md` phases.
@@ -31,6 +32,7 @@ This repository builds a full-stack application that helps a user:
   - Core success paths
   - Key validation failures
   - Critical edge cases
+- Frontend workflow regressions should include Cypress E2E coverage for key user-visible flows.
 - Keep tests concise and high-signal.
 - Avoid low-value snapshot-style overtesting.
 

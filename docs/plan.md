@@ -34,6 +34,7 @@ Deliver the system iteratively, starting with foundational documents and infrast
 
 ### Testing and Docs
 - Add initial pytest suite for auth + basic health/core paths
+- Add Cypress E2E test for frontend skeleton and auto-login flow
 - Update `README.md` with architecture, setup, and run steps
 
 ### Acceptance Criteria
@@ -41,6 +42,7 @@ Deliver the system iteratively, starting with foundational documents and infrast
 - Backend auth with JWT works
 - Seed user exists and can authenticate
 - UI skeleton renders workflow screens
+- Cypress E2E passes for frontend skeleton and login bootstrap path
 - Dockerized backend starts successfully
 - README instructions are sufficient for a clean setup
 
