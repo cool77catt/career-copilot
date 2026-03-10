@@ -38,13 +38,25 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
 ## 4. Functional Requirements
 
 ## 4.1 User Profile Stage
-- Upload and ingest PDF sources (LinkedIn profile PDF, resume PDF)
-- Extract profile signals (experience, skills, titles, industries)
-- Ask follow-up questions to fill missing context
-- Allow free-form user chat entries to enrich profile
-- Update/refine profile whenever new info is provided
+- Provide four clearly labeled input sections:
+  - LinkedIn profile input (PDF)
+  - Resume input (PDF)
+  - Follow-up questions with answer inputs
+  - Additional information (free-form text)
+- User edits all sections and applies changes with a single action (`Update Profile`)
+- System extracts profile signals from LinkedIn/resume uploads
+- System generates and refreshes follow-up questions to fill missing context
+- System stores follow-up answers and additional information
 - Persist profile as markdown flat file (`profile.md`)
-- Store profile file path in DB
+- Persist each profile section as its own markdown file:
+  - `linkedin-profile.md`
+  - `resume.md`
+  - `follow-up-answers.md`
+  - `additional-information.md`
+- Store only profile/section markdown file paths in DB (markdown files are source of truth)
+- Profile viewer must support two tabs:
+  - Raw markdown view
+  - Rendered markdown view
 
 ## 4.2 LinkedIn Profile Optimizer Stage
 - Provide guidance for profile improvements tailored to target roles/preferences
@@ -98,6 +110,7 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
   - Domain/services
   - Persistence layer
   - Integrations (LLM, job providers, document parsing)
+- All DB-hit operations must be isolated in the database layer (`backend/app/db/*`).
 
 ### Database
 - Postgres for users, job records, statuses, artifact metadata, and version metadata
@@ -114,7 +127,7 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
 - User
   - id, name, email, password_hash, created_at, updated_at
 - UserProfile
-  - id, user_id, profile_markdown_path, last_refined_at
+  - id, user_id, profile_markdown_path, linkedin_markdown_path, resume_markdown_path, follow_up_markdown_path, additional_info_markdown_path, updated_at
 - JobPreference
   - id, user_id, preferences_json, updated_at
 - JobRecommendation
@@ -127,8 +140,7 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
 ## 8. API Surface (Initial)
 - `POST /auth/login` -> returns JWT
 - `GET /me` -> current user
-- `POST /profile/ingest` -> upload/process PDF(s)
-- `POST /profile/refine` -> process follow-up chat/user details
+- `POST /profile/update` -> single update action for LinkedIn PDF, resume PDF, follow-up answers, and additional information
 - `GET /profile` -> returns profile metadata/content reference
 - `POST /linkedin/optimize` -> returns tailored LinkedIn recommendations
 - `POST /jobs/search` -> fetch/store/return 3 new recommendations

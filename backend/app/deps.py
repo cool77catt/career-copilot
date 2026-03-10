@@ -4,6 +4,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.db.user_repository import get_user_by_email
 from app.db.session import get_db
 from app.models.user import User
 
@@ -23,7 +24,7 @@ def get_current_user(
     except (JWTError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
-    user = db.query(User).filter(User.email == subject).first()
+    user = get_user_by_email(db, subject)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user

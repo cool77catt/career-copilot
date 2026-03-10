@@ -1,5 +1,7 @@
 import os
 from collections.abc import Generator
+from pathlib import Path
+import shutil
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,6 +14,7 @@ os.environ["DEFAULT_USER_NAME"] = "Chris Carl"
 os.environ["DEFAULT_USER_EMAIL"] = "chris77carl@gmail.com"
 os.environ["DEFAULT_USER_PASSWORD"] = "default"
 os.environ["JWT_SECRET_KEY"] = "test-secret"
+os.environ["PROFILE_STORAGE_DIR"] = "./test_storage"
 
 from app.db.base import Base  # noqa: E402
 from app.db.session import get_db  # noqa: E402
@@ -24,10 +27,13 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 @pytest.fixture(autouse=True)
 def setup_database() -> Generator[None, None, None]:
+    Path("./test_storage").mkdir(parents=True, exist_ok=True)
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+    if Path("./test_storage").exists():
+        shutil.rmtree("./test_storage")
 
 
 @pytest.fixture

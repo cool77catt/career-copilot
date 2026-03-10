@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     default_user_password: str = "default"
 
     cors_origins: str = Field(default="http://localhost:3000")
+    profile_storage_dir: str = "storage/profiles"
 
 
 settings = Settings()

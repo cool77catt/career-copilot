@@ -48,16 +48,25 @@ Deliver the system iteratively, starting with foundational documents and infrast
 
 ## Phase 2 - User Profile Workflow
 ### Tasks
-- Implement PDF ingestion endpoint and parsing pipeline
-- Implement profile refinement via follow-up Q&A/chat input
-- Persist `profile.md` and DB path linkage
-- Build profile UI interactions for upload + chat refinement
+- Implement a unified profile update endpoint that accepts:
+  - LinkedIn profile PDF
+  - Resume PDF
+  - Follow-up question answers
+  - Additional information text
+- Keep all DB operations in `backend/app/db/*` repositories to isolate persistence concerns
+- Persist `profile.md` and keep only markdown file paths in DB
+- Persist section-specific markdown artifacts (`linkedin-profile.md`, `resume.md`, `follow-up-answers.md`, `additional-information.md`)
+- Build profile UI with four clearly labeled sections for the inputs above
+- Add markdown viewer tabs for raw markdown and rendered output
+- Add a single `Update Profile` action that applies all section changes in one request
 
 ### Acceptance Criteria
-- User can upload PDFs and get an initial profile
-- User can add information and trigger profile refinement
-- Latest profile markdown is saved and referenceable
-- Core tests validate ingestion/refinement and storage wiring
+- User can complete all four profile input sections from one screen
+- User can submit one `Update Profile` action to apply all changes
+- Follow-up questions include inputs for user-provided answers
+- Latest profile markdown is saved and referenceable in raw and rendered views
+- Section markdown files are generated/updated and path-linked for downstream agent workflows
+- Core tests validate unified profile update flow and storage wiring
 
 ## Phase 3 - LinkedIn Optimizer
 ### Tasks

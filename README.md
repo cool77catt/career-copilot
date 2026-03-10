@@ -12,6 +12,17 @@ Deliverable 2 includes:
 - Backend pytest suite
 - Frontend Cypress E2E test
 
+Phase 2 now includes:
+- Unified profile update API (`POST /profile/update`) for LinkedIn PDF, resume PDF, follow-up answers, and additional information
+- Profile retrieval API (`GET /profile`) returning current `profile.md`, section markdown paths, follow-up Q/A, and metadata
+- Flat-file profile persistence at `PROFILE_STORAGE_DIR/user-{id}/profile.md` with DB linkage via `user_profiles`
+- Section markdown persistence for agent workflows:
+  - `PROFILE_STORAGE_DIR/user-{id}/linkedin-profile.md`
+  - `PROFILE_STORAGE_DIR/user-{id}/resume.md`
+  - `PROFILE_STORAGE_DIR/user-{id}/follow-up-answers.md`
+  - `PROFILE_STORAGE_DIR/user-{id}/additional-information.md`
+- Frontend Profile Builder panel with 4 labeled sections, single `Update Profile` action, and raw/rendered markdown tabs
+
 ## Architecture
 - `frontend/`: Next.js TypeScript UI skeleton
 - `backend/`: FastAPI API + SQLAlchemy + Alembic
