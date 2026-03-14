@@ -17,6 +17,8 @@ class Settings(BaseSettings):
 
     cors_origins: str = Field(default="http://localhost:3000")
     profile_storage_dir: str = "storage/profiles"
+    openai_api_key: str | None = None
+    openai_profile_agent_model: str = "gpt-4.1-mini"
 
 
 settings = Settings()

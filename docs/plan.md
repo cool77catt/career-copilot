@@ -60,6 +60,18 @@ Deliver the system iteratively, starting with foundational documents and infrast
 - Add markdown viewer tabs for raw markdown and rendered output
 - Add a single `Update Profile` action that applies all section changes in one request
 
+### Phase 2 Sub-Phase - Profile Report Agent
+#### Tasks
+- Add a dedicated OpenAI-powered profile report agent module under `backend/app/agents/profile_report_agent/`
+- Trigger the agent when `Update Profile` is submitted so it generates a detailed markdown profile report from:
+  - LinkedIn profile markdown
+  - Resume markdown
+  - Follow-up Q/A markdown
+  - Additional information markdown
+- Persist profile report outputs as revisioned markdown files (no destructive overwrite of prior revisions)
+- Expose latest report path + revision history in profile API responses
+- Add a backend CLI entrypoint/script to run the profile report agent without frontend interaction
+
 ### Acceptance Criteria
 - User can complete all four profile input sections from one screen
 - User can submit one `Update Profile` action to apply all changes
@@ -67,6 +79,9 @@ Deliver the system iteratively, starting with foundational documents and infrast
 - Latest profile markdown is saved and referenceable in raw and rendered views
 - Section markdown files are generated/updated and path-linked for downstream agent workflows
 - Core tests validate unified profile update flow and storage wiring
+- `Update Profile` enqueues profile report generation and stores a new revisioned markdown report
+- Report history is discoverable via API response metadata
+- CLI execution path can generate revisioned reports for a selected user id
 
 ## Phase 3 - LinkedIn Optimizer
 ### Tasks

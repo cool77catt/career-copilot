@@ -5,6 +5,8 @@ const DEV_PASSWORD = process.env.NEXT_PUBLIC_DEV_PASSWORD || "default";
 export type ProfileResponse = {
   profile_markdown_path: string;
   section_markdown_paths: Record<string, string>;
+  profile_report_latest_path?: string | null;
+  profile_report_revision_paths?: string[];
   content: string;
   follow_up_questions: string[];
   follow_up_answers: Record<string, string>;

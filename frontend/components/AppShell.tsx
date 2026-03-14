@@ -198,6 +198,8 @@ export function AppShell() {
   const [profileContent, setProfileContent] = useState("");
   const [profilePath, setProfilePath] = useState("");
   const [sectionMarkdownPaths, setSectionMarkdownPaths] = useState<Record<string, string>>({});
+  const [profileReportLatestPath, setProfileReportLatestPath] = useState("");
+  const [profileReportRevisionPaths, setProfileReportRevisionPaths] = useState<string[]>([]);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [followUpAnswers, setFollowUpAnswers] = useState<Record<string, string>>({});
   const [additionalInformation, setAdditionalInformation] = useState("");
@@ -216,6 +218,8 @@ export function AppShell() {
     setProfileContent(payload.content);
     setProfilePath(payload.profile_markdown_path);
     setSectionMarkdownPaths(payload.section_markdown_paths || {});
+    setProfileReportLatestPath(payload.profile_report_latest_path || "");
+    setProfileReportRevisionPaths(payload.profile_report_revision_paths || []);
     setFollowUpQuestions(payload.follow_up_questions);
     setFollowUpAnswers(payload.follow_up_answers || {});
     setAdditionalInformation(payload.additional_information || "");
@@ -268,7 +272,10 @@ export function AppShell() {
         additionalInformation,
       });
       applyProfileState(profile);
-      setProfileMessage({ severity: "success", text: "Profile updated successfully." });
+      setProfileMessage({
+        severity: "success",
+        text: "Profile updated. Profile report agent run has been queued.",
+      });
       setLinkedinProfileFile(null);
       setResumeFile(null);
     } catch (error) {
@@ -526,6 +533,24 @@ export function AppShell() {
                           {key}: {value}
                         </Typography>
                       ))}
+                    </Stack>
+                    <Divider sx={{ my: 0.4 }} />
+                    <Typography sx={{ fontWeight: 700 }}>Profile report history</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      latest: {profileReportLatestPath || "No profile report generated yet"}
+                    </Typography>
+                    <Stack spacing={0.35}>
+                      {profileReportRevisionPaths.length ? (
+                        profileReportRevisionPaths.map((path) => (
+                          <Typography key={path} variant="caption" color="text.secondary">
+                            revision: {path}
+                          </Typography>
+                        ))
+                      ) : (
+                        <Typography variant="caption" color="text.secondary">
+                          No revisions yet
+                        </Typography>
+                      )}
                     </Stack>
 
                     <Tabs

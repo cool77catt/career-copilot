@@ -53,10 +53,14 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
   - `resume.md`
   - `follow-up-answers.md`
   - `additional-information.md`
+- On `Update Profile`, spawn a profile-report agent run that synthesizes all profile section markdown into a detailed markdown dossier for job-fit and material generation.
+- Persist profile report outputs as revisioned markdown artifacts under user profile storage (for example: `profile-report-revisions/profile-report-<timestamp>.md`).
+- Track and expose latest profile report path and revision history paths in profile API responses so history is inspectable.
 - Store only profile/section markdown file paths in DB (markdown files are source of truth)
 - Profile viewer must support two tabs:
   - Raw markdown view
   - Rendered markdown view
+- Provide a backend CLI path to execute the profile-report agent directly (without frontend).
 
 ## 4.2 LinkedIn Profile Optimizer Stage
 - Provide guidance for profile improvements tailored to target roles/preferences
@@ -141,7 +145,7 @@ A job seeker who wants to quickly find relevant opportunities and generate tailo
 - `POST /auth/login` -> returns JWT
 - `GET /me` -> current user
 - `POST /profile/update` -> single update action for LinkedIn PDF, resume PDF, follow-up answers, and additional information
-- `GET /profile` -> returns profile metadata/content reference
+- `GET /profile` -> returns profile metadata/content reference plus profile report history metadata
 - `POST /linkedin/optimize` -> returns tailored LinkedIn recommendations
 - `POST /jobs/search` -> fetch/store/return 3 new recommendations
 - `GET /jobs` -> list jobs with current statuses

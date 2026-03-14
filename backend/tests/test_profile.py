@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 
+from app.agents.profile_report_agent.agent import ProfileReportAgent
+from app.core.config import settings
+
 
 def _auth_headers(client):
     response = client.post(
@@ -111,3 +114,54 @@ def test_update_profile_allows_additional_info_only(client):
     body = response.json()
     assert body["additional_information"] == "Extra context without replacing files."
     assert "Extra context without replacing files." in body["content"]
+
+
+def test_update_profile_generates_revisioned_profile_reports(client, monkeypatch):
+    headers = _auth_headers(client)
+    monkeypatch.setattr(settings, "openai_api_key", "test-api-key", raising=False)
+    monkeypatch.setattr(
+        ProfileReportAgent,
+        "generate_report",
+        lambda self, payload: (
+            "## Executive Summary\n"
+            "Generated profile report for testing.\n\n"
+            "## Candidate Snapshot\n"
+            "Candidate has measurable outcomes."
+        ),
+    )
+
+    first = client.post(
+        "/profile/update",
+        data={
+            "follow_up_answers": json.dumps({}),
+            "additional_information": "First profile update",
+        },
+        headers=headers,
+    )
+    assert first.status_code == 200
+
+    first_profile = client.get("/profile", headers=headers)
+    assert first_profile.status_code == 200
+    first_body = first_profile.json()
+    assert first_body["profile_report_latest_path"]
+    assert len(first_body["profile_report_revision_paths"]) == 1
+
+    latest_path = Path(first_body["profile_report_latest_path"])
+    assert latest_path.exists()
+    assert "Generated profile report for testing." in latest_path.read_text(encoding="utf-8")
+
+    second = client.post(
+        "/profile/update",
+        data={
+            "follow_up_answers": json.dumps({}),
+            "additional_information": "Second profile update",
+        },
+        headers=headers,
+    )
+    assert second.status_code == 200
+
+    second_profile = client.get("/profile", headers=headers)
+    assert second_profile.status_code == 200
+    second_body = second_profile.json()
+    assert second_body["profile_report_latest_path"]
+    assert len(second_body["profile_report_revision_paths"]) == 2

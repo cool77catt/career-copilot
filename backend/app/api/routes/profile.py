@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
+from app.agents.profile_report_agent.runner import generate_profile_report_for_user_safe, get_profile_report_history
 from app.db.profile_repository import create_profile, get_profile_by_user_id, save_profile
-from app.db.session import get_db
+from app.db.session import SessionLocal, get_db
 from app.deps import get_current_user
 from app.models.user import User
 from app.models.user_profile import UserProfile
@@ -25,6 +26,14 @@ from app.profile_service import (
 from app.schemas.profile import ProfileResponse
 
 router = APIRouter(prefix="/profile", tags=["profile"])
+
+
+def _generate_profile_report_task(user_id: int) -> None:
+    db = SessionLocal()
+    try:
+        generate_profile_report_for_user_safe(db, user_id)
+    finally:
+        db.close()
 
 
 def _get_or_create_profile(db: Session, user: User) -> UserProfile:
@@ -80,6 +89,8 @@ def _build_profile_response(profile: UserProfile) -> ProfileResponse:
     )
     write_profile_markdown(profile.profile_markdown_path, content)
 
+    latest_report_path, report_revisions = get_profile_report_history(profile.user_id)
+
     return ProfileResponse(
         profile_markdown_path=profile.profile_markdown_path,
         section_markdown_paths={
@@ -88,6 +99,8 @@ def _build_profile_response(profile: UserProfile) -> ProfileResponse:
             "follow_up_answers": profile.follow_up_markdown_path,
             "additional_information": profile.additional_info_markdown_path,
         },
+        profile_report_latest_path=latest_report_path,
+        profile_report_revision_paths=report_revisions,
         content=content,
         follow_up_questions=questions,
         follow_up_answers=follow_up_answers,
@@ -100,6 +113,7 @@ def _build_profile_response(profile: UserProfile) -> ProfileResponse:
 
 @router.post("/update", response_model=ProfileResponse)
 async def update_profile(
+    background_tasks: BackgroundTasks,
     linkedin_profile: UploadFile | None = File(default=None),
     resume: UploadFile | None = File(default=None),
     follow_up_answers: str | None = Form(default=None),
@@ -162,6 +176,7 @@ async def update_profile(
 
     profile.updated_at = datetime.now(timezone.utc)
     save_profile(db, profile)
+    background_tasks.add_task(_generate_profile_report_task, profile.user_id)
 
     return _build_profile_response(profile)
 

@@ -1,5 +1,4 @@
-import os
-
+import click
 import psycopg
 from psycopg import sql
 from sqlalchemy.engine import make_url
@@ -14,31 +13,44 @@ def to_psycopg_dsn(database_url: str, database: str) -> str:
     return dsn
 
 
-def main() -> None:
-    database_url = os.getenv("DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/job_finder")
+@click.command()
+@click.option(
+    "--database-url",
+    envvar="DATABASE_URL",
+    default="postgresql+psycopg://postgres:postgres@localhost:5432/job_finder",
+    show_default=True,
+    help="SQLAlchemy DATABASE_URL used to derive target database.",
+)
+@click.option(
+    "--postgres-admin-db",
+    envvar="POSTGRES_ADMIN_DB",
+    default="postgres",
+    show_default=True,
+    help="Admin database used to create the target DB if missing.",
+)
+def main(database_url: str, postgres_admin_db: str) -> None:
     url = make_url(database_url)
 
     if not url.drivername.startswith("postgresql"):
-        print("Skipping DB init: non-Postgres DATABASE_URL")
+        click.echo("Skipping DB init: non-Postgres DATABASE_URL")
         return
 
     target_db = url.database
     if not target_db:
-        raise RuntimeError("DATABASE_URL is missing database name")
+        raise click.ClickException("DATABASE_URL is missing database name")
 
-    admin_db = os.getenv("POSTGRES_ADMIN_DB", "postgres")
-    admin_dsn = to_psycopg_dsn(database_url, admin_db)
+    admin_dsn = to_psycopg_dsn(database_url, postgres_admin_db)
 
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (target_db,))
             exists = cur.fetchone() is not None
             if exists:
-                print(f"Database '{target_db}' already exists")
+                click.echo(f"Database '{target_db}' already exists")
                 return
 
             cur.execute(sql.SQL("CREATE DATABASE {} ").format(sql.Identifier(target_db)))
-            print(f"Created database '{target_db}'")
+            click.echo(f"Created database '{target_db}'")
 
 
 if __name__ == "__main__":

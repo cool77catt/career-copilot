@@ -21,6 +21,10 @@ Phase 2 now includes:
   - `PROFILE_STORAGE_DIR/user-{id}/resume.md`
   - `PROFILE_STORAGE_DIR/user-{id}/follow-up-answers.md`
   - `PROFILE_STORAGE_DIR/user-{id}/additional-information.md`
+- Profile report agent workflow:
+  - `POST /profile/update` triggers an OpenAI-backed agent run in the background
+  - Revisioned report outputs are stored at `PROFILE_STORAGE_DIR/user-{id}/profile-report-revisions/profile-report-<timestamp>.md`
+  - Latest report pointer is stored at `PROFILE_STORAGE_DIR/user-{id}/profile-report-revisions/profile-report-latest.md`
 - Frontend Profile Builder panel with 4 labeled sections, single `Update Profile` action, and raw/rendered markdown tabs
 
 ## Architecture
@@ -39,6 +43,14 @@ Phase 2 now includes:
 1. Copy env files:
 ```bash
 ./scripts/setup_env.sh
+```
+
+Optional for profile report agent runs:
+```bash
+cd backend
+export OPENAI_API_KEY=<your-key>
+# optional override:
+# export OPENAI_PROFILE_AGENT_MODEL=gpt-4.1-mini
 ```
 
 2. Initialize **local Postgres** database (idempotent):
@@ -73,6 +85,11 @@ pnpm dev
 ```
 
 Open `http://localhost:3000`.
+
+Run profile report agent directly from CLI:
+```bash
+./scripts/run_profile_report_agent.sh --user-id 1
+```
 
 ## Testing
 Backend tests:
