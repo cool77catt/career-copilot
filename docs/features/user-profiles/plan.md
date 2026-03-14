@@ -4,17 +4,27 @@
 Deliver a `Profiles` workspace with two core sections:
 `User Information` (global intake/profile) and `Job-Specific Profiles` (targeted profile generation and refinement).
 
-## Phase A - Profiles Navigation and Page Shell
+## Phase A - Profiles Navigation, Submenu, and Overview Shell
 ### Tasks
 - Add `Profiles` item to the application navigation.
-- Implement Profiles page route/view.
+- Implement route-backed Profiles workspace:
+  - `GET /profiles` for Profiles Overview
+  - `GET /profiles/{profileId}` for each job-specific profile workspace
+- Add dropdown submenu under `Profiles` containing:
+  - `Overview`
+  - One menu item per job-specific profile
 - Render two top-level sections:
   - `User Information`
   - `Job-Specific Profiles`
+- In `Job-Specific Profiles` Overview, render a profile table with list entries and explicit open actions.
+- Ensure clicking either submenu items or table rows navigates to the same URL-backed profile routes.
 
 ### Acceptance Criteria
 - User can navigate to `Profiles` from nav bar.
-- Profiles page consistently renders both top-level sections.
+- `Profiles` navigation supports submenu expansion/collapse.
+- `Overview` and profile entries are URL-backed and deep-linkable.
+- Profiles Overview consistently renders both top-level sections.
+- Profiles Overview table lists available job-specific profiles and supports click-through navigation to `/profiles/{profileId}`.
 
 ## Phase B - User Information Intake and Global Profile Generation
 ### Tasks
@@ -31,6 +41,7 @@ Deliver a `Profiles` workspace with two core sections:
 ## Phase C - Job-Specific Profiles List and Add Flow
 ### Tasks
 - Implement job-specific profile list UI/state.
+- Connect job-specific profile list to backend persistence so Profiles submenu and Overview table are sourced from API, not transient client state.
 - Add `Add Profile` flow supporting:
   - Agent-generated suggestions from global profile
   - User-defined custom profile input
@@ -78,6 +89,9 @@ Deliver a `Profiles` workspace with two core sections:
   - Revisioning behavior across artifact types
 - Cypress E2E coverage for:
   - Navigate to Profiles page
+  - Expand/collapse Profiles submenu
+  - Navigate using `Overview` submenu and `/profiles/{profileId}` submenu entries
+  - Navigate from Profiles Overview table row to the same profile route
   - Fill User Information and generate global profile
   - Add/accept/customize job-specific profiles
   - View generated assessment/resume/tailored profile
