@@ -50,6 +50,11 @@ describe("Career Copilot shell", () => {
     cy.url().should("include", "/profiles");
     cy.contains("User Information").should("be.visible");
     cy.contains("Job-Specific Profiles").should("be.visible");
+    cy.contains("1. LinkedIn Profile Input").should("be.visible");
+    cy.contains("2. Resume Input").should("be.visible");
+    cy.contains("3. Follow-up Questions and Answers").should("be.visible");
+    cy.contains("4. Additional Information").should("be.visible");
+    cy.contains("button", "Update Profile").should("be.visible");
   });
 
   it("renders profiles submenu entries and opens url-backed profile pages", () => {

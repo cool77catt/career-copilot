@@ -50,9 +50,9 @@ const stages: Stage[] = [
   {
     id: "user-profile",
     title: "User Profile",
-    description: "Upload LinkedIn/resume PDFs, answer follow-up questions, and refine profile.md.",
-    phase: "Phase 2",
-    focus: "Parsing + profile memory",
+    description: "Legacy profile entry point; use Profiles > Overview for full intake.",
+    phase: "Legacy",
+    focus: "Transition path",
   },
   {
     id: "linkedin-optimizer",
@@ -369,6 +369,182 @@ export function AppShell({ initialTab = "overview" }: AppShellProps) {
 
   const selectedJobProfile = routeProfileId ? jobProfiles.find((profile) => profile.id === routeProfileId) : null;
 
+  const renderUserInformationSection = () => (
+    <Paper elevation={0} sx={{ p: 2.2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
+      <Stack spacing={2}>
+        <Box>
+          <Typography variant="h6">User Information</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Provide LinkedIn, resume, follow-up answers, and additional context. Click <b>Update Profile</b> once to persist all
+            changes and regenerate `profile.md`.
+          </Typography>
+        </Box>
+
+        <Paper elevation={0} sx={{ p: 1.7, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
+          <Stack spacing={1}>
+            <Typography sx={{ fontWeight: 700 }}>1. LinkedIn Profile Input</Typography>
+            <Button component="label" variant="outlined">
+              Upload LinkedIn Profile (PDF)
+              <input
+                type="file"
+                hidden
+                accept=".pdf,application/pdf"
+                onChange={(event) => setLinkedinProfileFile(event.target.files?.[0] ?? null)}
+              />
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              {linkedinProfileFile
+                ? `Selected: ${linkedinProfileFile.name}`
+                : hasLinkedinProfile
+                  ? "LinkedIn profile already on file"
+                  : "No LinkedIn profile uploaded yet"}
+            </Typography>
+          </Stack>
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: 1.7, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
+          <Stack spacing={1}>
+            <Typography sx={{ fontWeight: 700 }}>2. Resume Input</Typography>
+            <Button component="label" variant="outlined">
+              Upload Resume (PDF)
+              <input
+                type="file"
+                hidden
+                accept=".pdf,application/pdf"
+                onChange={(event) => setResumeFile(event.target.files?.[0] ?? null)}
+              />
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              {resumeFile
+                ? `Selected: ${resumeFile.name}`
+                : hasResume
+                  ? "Resume already on file"
+                  : "No resume uploaded yet"}
+            </Typography>
+          </Stack>
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: 1.7, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
+          <Stack spacing={1.4}>
+            <Typography sx={{ fontWeight: 700 }}>3. Follow-up Questions and Answers</Typography>
+            {followUpQuestions.length ? (
+              <Stack spacing={1.5}>
+                {followUpQuestions.map((question) => (
+                  <Paper key={question} elevation={0} sx={{ p: 1.2, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
+                    <Stack spacing={0.9}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary" }}>
+                        {question}
+                      </Typography>
+                      <TextField
+                        value={followUpAnswers[question] || ""}
+                        onChange={(event) => handleFollowUpAnswerChange(question, event.target.value)}
+                        multiline
+                        minRows={3}
+                        placeholder="Enter your answer"
+                        sx={{ "& .MuiInputBase-root": { py: 0.5 } }}
+                      />
+                    </Stack>
+                  </Paper>
+                ))}
+              </Stack>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No follow-up questions yet. Upload profile documents to generate questions.
+              </Typography>
+            )}
+          </Stack>
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: 1.7, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
+          <Stack spacing={1.2}>
+            <Typography sx={{ fontWeight: 700 }}>4. Additional Information</Typography>
+            <TextField
+              multiline
+              minRows={4}
+              value={additionalInformation}
+              onChange={(event) => setAdditionalInformation(event.target.value)}
+              placeholder="Add any other context that should improve profile quality and job matching."
+            />
+          </Stack>
+        </Paper>
+
+        <Stack direction="row" justifyContent="flex-end">
+          <Button variant="contained" disabled={updateLoading} onClick={handleProfileUpdate}>
+            {updateLoading ? "Updating..." : "Update Profile"}
+          </Button>
+        </Stack>
+
+        {profileMessage && <Alert severity={profileMessage.severity}>{profileMessage.text}</Alert>}
+
+        <Paper elevation={0} sx={{ p: 1.7, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
+          <Stack spacing={1}>
+            <Typography sx={{ fontWeight: 700 }}>Current profile.md</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {profilePath || "No profile path yet"}
+            </Typography>
+            <Stack spacing={0.35}>
+              {Object.entries(sectionMarkdownPaths).map(([key, value]) => (
+                <Typography key={key} variant="caption" color="text.secondary">
+                  {key}: {value}
+                </Typography>
+              ))}
+            </Stack>
+            <Divider sx={{ my: 0.4 }} />
+            <Typography sx={{ fontWeight: 700 }}>Profile report history</Typography>
+            <Typography variant="caption" color="text.secondary">
+              latest: {profileReportLatestPath || "No profile report generated yet"}
+            </Typography>
+            <Stack spacing={0.35}>
+              {profileReportRevisionPaths.length ? (
+                profileReportRevisionPaths.map((path) => (
+                  <Typography key={path} variant="caption" color="text.secondary">
+                    revision: {path}
+                  </Typography>
+                ))
+              ) : (
+                <Typography variant="caption" color="text.secondary">
+                  No revisions yet
+                </Typography>
+              )}
+            </Stack>
+
+            <Tabs value={profileMarkdownView} onChange={(_, value) => setProfileMarkdownView(value)} sx={{ minHeight: 36 }}>
+              <Tab value="rendered" label="Rendered" sx={{ minHeight: 36 }} />
+              <Tab value="raw" label="Raw Markdown" sx={{ minHeight: 36 }} />
+            </Tabs>
+
+            <Box
+              sx={{
+                border: `1px solid ${theme.palette.divider}`,
+                background: alpha(theme.palette.primary.light, 0.04),
+                borderRadius: 1,
+                maxHeight: 320,
+                overflow: "auto",
+                p: 1.2,
+              }}
+            >
+              {profileLoading ? (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <CircularProgress size={16} />
+                  <Typography variant="body2">Loading profile content...</Typography>
+                </Stack>
+              ) : profileMarkdownView === "raw" ? (
+                <Typography
+                  component="pre"
+                  sx={{ m: 0, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 12, whiteSpace: "pre-wrap" }}
+                >
+                  {profileContent || "Profile markdown will appear here after update."}
+                </Typography>
+              ) : (
+                renderMarkdownPreview(profileContent || "No profile markdown generated yet.")
+              )}
+            </Box>
+          </Stack>
+        </Paper>
+      </Stack>
+    </Paper>
+  );
+
   return (
     <Box
       sx={{
@@ -648,24 +824,8 @@ export function AppShell({ initialTab = "overview" }: AppShellProps) {
             <AuthBanner authState={authState} />
 
             {activeTab === "profiles" && !routeProfileId && (
-              <Box
-                sx={{
-                  display: "grid",
-                  gap: 2,
-                  gridTemplateColumns: { xs: "1fr", xl: "repeat(2, minmax(0, 1fr))" },
-                }}
-              >
-                <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
-                  <Stack spacing={1.2}>
-                    <Typography variant="h6">User Information</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Global intake workspace for LinkedIn, resume(s), additional context, and generated user profile markdown.
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Phase B will attach full ingestion and profile generation controls here.
-                    </Typography>
-                  </Stack>
-                </Paper>
+              <Stack spacing={2.4}>
+                {renderUserInformationSection()}
 
                 <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
                   <Stack spacing={1.4}>
@@ -744,7 +904,7 @@ export function AppShell({ initialTab = "overview" }: AppShellProps) {
                     </Box>
                   </Stack>
                 </Paper>
-              </Box>
+              </Stack>
             )}
 
             {activeTab === "profiles" && !!routeProfileId && (
@@ -778,174 +938,12 @@ export function AppShell({ initialTab = "overview" }: AppShellProps) {
             )}
 
             {activeTab === "user-profile" && (
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
-              <Stack spacing={1.6}>
-                <Box>
-                  <Typography variant="h6">Phase 2: Profile Builder</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Complete all profile sections, then click <b>Update Profile</b> once to persist your changes and
-                    regenerate `profile.md`.
-                  </Typography>
-                </Box>
-
-                <Paper elevation={0} sx={{ p: 1.5, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
-                  <Stack spacing={1}>
-                    <Typography sx={{ fontWeight: 700 }}>1. LinkedIn Profile Input</Typography>
-                    <Button component="label" variant="outlined">
-                      Upload LinkedIn Profile (PDF)
-                      <input
-                        type="file"
-                        hidden
-                        accept=".pdf,application/pdf"
-                        onChange={(event) => setLinkedinProfileFile(event.target.files?.[0] ?? null)}
-                      />
-                    </Button>
-                    <Typography variant="caption" color="text.secondary">
-                      {linkedinProfileFile
-                        ? `Selected: ${linkedinProfileFile.name}`
-                        : hasLinkedinProfile
-                          ? "LinkedIn profile already on file"
-                          : "No LinkedIn profile uploaded yet"}
-                    </Typography>
-                  </Stack>
-                </Paper>
-
-                <Paper elevation={0} sx={{ p: 1.5, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
-                  <Stack spacing={1}>
-                    <Typography sx={{ fontWeight: 700 }}>2. Resume Input</Typography>
-                    <Button component="label" variant="outlined">
-                      Upload Resume (PDF)
-                      <input
-                        type="file"
-                        hidden
-                        accept=".pdf,application/pdf"
-                        onChange={(event) => setResumeFile(event.target.files?.[0] ?? null)}
-                      />
-                    </Button>
-                    <Typography variant="caption" color="text.secondary">
-                      {resumeFile
-                        ? `Selected: ${resumeFile.name}`
-                        : hasResume
-                          ? "Resume already on file"
-                          : "No resume uploaded yet"}
-                    </Typography>
-                  </Stack>
-                </Paper>
-
-                <Paper elevation={0} sx={{ p: 1.5, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
-                  <Stack spacing={1}>
-                    <Typography sx={{ fontWeight: 700 }}>3. Follow-up Questions and Answers</Typography>
-                    {followUpQuestions.length ? (
-                      followUpQuestions.map((question) => (
-                        <TextField
-                          key={question}
-                          label={question}
-                          value={followUpAnswers[question] || ""}
-                          onChange={(event) => handleFollowUpAnswerChange(question, event.target.value)}
-                          multiline
-                          minRows={2}
-                        />
-                      ))
-                    ) : (
-                      <Typography variant="body2" color="text.secondary">
-                        No follow-up questions yet. Upload profile documents to generate questions.
-                      </Typography>
-                    )}
-                  </Stack>
-                </Paper>
-
-                <Paper elevation={0} sx={{ p: 1.5, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
-                  <Stack spacing={1}>
-                    <Typography sx={{ fontWeight: 700 }}>4. Additional Information</Typography>
-                    <TextField
-                      multiline
-                      minRows={4}
-                      value={additionalInformation}
-                      onChange={(event) => setAdditionalInformation(event.target.value)}
-                      placeholder="Add any other context that should improve profile quality and job matching."
-                    />
-                  </Stack>
-                </Paper>
-
-                <Stack direction="row" justifyContent="flex-end">
-                  <Button variant="contained" disabled={updateLoading} onClick={handleProfileUpdate}>
-                    {updateLoading ? "Updating..." : "Update Profile"}
-                  </Button>
-                </Stack>
-
-                {profileMessage && <Alert severity={profileMessage.severity}>{profileMessage.text}</Alert>}
-
-                <Paper elevation={0} sx={{ p: 1.5, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
-                  <Stack spacing={0.8}>
-                    <Typography sx={{ fontWeight: 700 }}>Current profile.md</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {profilePath || "No profile path yet"}
-                    </Typography>
-                    <Stack spacing={0.35}>
-                      {Object.entries(sectionMarkdownPaths).map(([key, value]) => (
-                        <Typography key={key} variant="caption" color="text.secondary">
-                          {key}: {value}
-                        </Typography>
-                      ))}
-                    </Stack>
-                    <Divider sx={{ my: 0.4 }} />
-                    <Typography sx={{ fontWeight: 700 }}>Profile report history</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      latest: {profileReportLatestPath || "No profile report generated yet"}
-                    </Typography>
-                    <Stack spacing={0.35}>
-                      {profileReportRevisionPaths.length ? (
-                        profileReportRevisionPaths.map((path) => (
-                          <Typography key={path} variant="caption" color="text.secondary">
-                            revision: {path}
-                          </Typography>
-                        ))
-                      ) : (
-                        <Typography variant="caption" color="text.secondary">
-                          No revisions yet
-                        </Typography>
-                      )}
-                    </Stack>
-
-                    <Tabs
-                      value={profileMarkdownView}
-                      onChange={(_, value) => setProfileMarkdownView(value)}
-                      sx={{ minHeight: 36 }}
-                    >
-                      <Tab value="rendered" label="Rendered" sx={{ minHeight: 36 }} />
-                      <Tab value="raw" label="Raw Markdown" sx={{ minHeight: 36 }} />
-                    </Tabs>
-
-                    <Box
-                      sx={{
-                        border: `1px solid ${theme.palette.divider}`,
-                        background: alpha(theme.palette.primary.light, 0.04),
-                        borderRadius: 1,
-                        maxHeight: 320,
-                        overflow: "auto",
-                        p: 1.2,
-                      }}
-                    >
-                      {profileLoading ? (
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <CircularProgress size={16} />
-                          <Typography variant="body2">Loading profile content...</Typography>
-                        </Stack>
-                      ) : profileMarkdownView === "raw" ? (
-                        <Typography
-                          component="pre"
-                          sx={{ m: 0, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 12, whiteSpace: "pre-wrap" }}
-                        >
-                          {profileContent || "Profile markdown will appear here after update."}
-                        </Typography>
-                      ) : (
-                        renderMarkdownPreview(profileContent || "No profile markdown generated yet.")
-                      )}
-                    </Box>
-                  </Stack>
-                </Paper>
+              <Stack spacing={1.2}>
+                <Alert severity="info">User Information is now managed in Profiles &gt; Overview.</Alert>
+                <Button variant="outlined" component={Link} href="/profiles" onClick={() => setActiveTab("profiles")}>
+                  Open Profiles Overview
+                </Button>
               </Stack>
-            </Paper>
             )}
 
             {activeTab === "overview" && (
@@ -1032,7 +1030,7 @@ export function AppShell({ initialTab = "overview" }: AppShellProps) {
               </>
             )}
 
-            {activeTab !== "overview" && activeTab !== "user-profile" && activeTab !== "profiles" && (
+            {activeTab !== "overview" && activeTab !== "profiles" && activeTab !== "user-profile" && (
               <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
                 <Stack spacing={1}>
                   <Typography variant="h6">

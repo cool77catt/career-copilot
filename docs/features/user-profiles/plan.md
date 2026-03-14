@@ -28,13 +28,20 @@ Deliver a `Profiles` workspace with two core sections:
 
 ## Phase B - User Information Intake and Global Profile Generation
 ### Tasks
+- On `/profiles` Overview, render sections in a vertical stack:
+  - `User Information` first
+  - `Job-Specific Profiles` second
 - Implement global intake controls for LinkedIn, resume(s), and additional information.
+- Include follow-up question answer inputs in `User Information`.
+- Provide one `Update Profile` action that submits all user information inputs together.
 - Persist intake markdown artifacts.
 - Generate combined full global profile markdown and surface it to user.
 - Ensure updates are revisioned.
 
 ### Acceptance Criteria
+- Profiles Overview renders `User Information` above `Job-Specific Profiles` (not side-by-side).
 - User can submit/update global profile inputs.
+- User can edit LinkedIn/resume/additional information/follow-up answers and submit with a single update action.
 - Full global profile markdown is generated and visible.
 - Global profile markdown revisions are preserved.
 
@@ -53,7 +60,19 @@ Deliver a `Profiles` workspace with two core sections:
 - User can accept/reject and finalize target profiles.
 - Finalized list persists and is retrievable.
 
-## Phase D - Job-Specific Profile Detail Artifacts
+## Phase D - Legacy User Profile Removal
+### Tasks
+- Remove legacy `User Profile` navigation/tab surface.
+- Remove duplicate profile-intake UI paths outside `Profiles > Overview`.
+- Ensure profile editing is centralized in `Profiles > Overview` only.
+- Update E2E assertions to reflect removal of legacy `User Profile` entry.
+
+### Acceptance Criteria
+- Sidebar/navigation no longer contains a legacy `User Profile` item.
+- User Information intake is only accessible via `Profiles > Overview`.
+- No duplicate or conflicting profile update surfaces remain in the UI.
+
+## Phase E - Job-Specific Profile Detail Artifacts
 ### Tasks
 - Implement per-profile detail workspace.
 - Generate and display, per selected profile:
@@ -66,7 +85,7 @@ Deliver a `Profiles` workspace with two core sections:
 - Each selected profile displays all three generated artifact types.
 - Artifacts are stored as markdown and revisioned.
 
-## Phase E - Additional Context and Global Sync
+## Phase F - Additional Context and Global Sync
 ### Tasks
 - Add profile-specific context input for each selected job profile.
 - On context update:

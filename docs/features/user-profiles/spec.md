@@ -15,6 +15,9 @@ Provide a dedicated `Profiles` workspace where a user can:
 - Opening Profiles Overview shows two high-level sections:
   - `User Information`
   - `Job-Specific Profiles`
+- On Profiles Overview, these two sections are arranged vertically:
+  - `User Information` on top
+  - `Job-Specific Profiles` below
 
 ## 3. User Journey
 1. User navigates to `Profiles` from the left navigation bar.
@@ -48,13 +51,18 @@ Provide a dedicated `Profiles` workspace where a user can:
 - Profiles Overview page must render exactly two top-level sections:
   - `User Information`
   - `Job-Specific Profiles`
+- Layout requirement: the two sections are stacked vertically, not presented in side-by-side columns.
+- Legacy `User Profile` navigation/tab surface must be removed once Profiles Overview owns intake behavior.
 
 ## 4.2 User Information Section
 - Purpose: global intake/ingestion of all known user context.
 - Inputs must support:
   - LinkedIn profile input
   - Current resume(s)
+  - Follow-up question answers
   - Additional user notes/context
+- A single `Update Profile` action submits all `User Information` inputs in one request.
+- Form controls in this section should have comfortable vertical spacing and not appear visually compressed.
 - System generates a full global user profile markdown from intake context.
 - User can view latest generated global profile markdown.
 
@@ -120,9 +128,13 @@ For each selected job-specific profile (at `/profiles/{profileId}`), show and pe
 - User can navigate to `Profiles` from navigation.
 - Profiles navigation includes a dropdown submenu with `Overview` and one item per job-specific profile.
 - `Overview` and each job-specific profile view are URL-backed and deep-linkable.
+- Legacy `User Profile` navigation/tab is removed.
 - Profiles Overview page has the two required top-level sections.
+- Profiles Overview renders `User Information` above `Job-Specific Profiles`.
+- User Information inputs are vertically spaced for clear readability.
 - Profiles Overview includes a profile table where row click/action navigates to the matching `/profiles/{profileId}` route.
 - User Information intake generates and reveals full global profile markdown.
+- User can update all user information inputs through one `Update Profile` action.
 - Job-Specific Profiles supports add/accept/reject/custom profile creation.
 - Each selected job-specific profile shows assessment, tailored resume, and tailored profile.
 - Additional job-specific context updates both selected profile outputs and global profile markdown.
