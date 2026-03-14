@@ -8,9 +8,12 @@ This repository builds a full-stack application that helps a user:
 
 ## Source of Truth
 - Product intent starts in `docs/prompt.md`.
-- Execution spec lives in `docs/spec.md`.
-- Implementation sequencing lives in `docs/plan.md`.
-- If conflicts exist: `docs/spec.md` > `docs/plan.md` > `docs/prompt.md`.
+- Global execution rules live in `docs/spec.md`.
+- Global sequencing/governance lives in `docs/plan.md`.
+- Feature-specific requirements live in `docs/features/<feature-name>/spec.md`.
+- Feature-specific sequencing lives in `docs/features/<feature-name>/plan.md`.
+- If conflicts exist while implementing a feature:
+  `docs/features/<feature-name>/spec.md` > `docs/features/<feature-name>/plan.md` > `docs/spec.md` > `docs/plan.md` > `docs/prompt.md`.
 
 ## Tech Constraints
 - Frontend: Next.js + TypeScript + pnpm
@@ -22,7 +25,7 @@ This repository builds a full-stack application that helps a user:
 - E2E: Cypress for frontend end-to-end tests
 
 ## Delivery Rules
-- Build in small, reviewable increments tied to `docs/plan.md` phases.
+- Build in small, reviewable increments tied to the active feature plan in `docs/features/<feature-name>/plan.md`.
 - Favor readable, explicit code over clever abstractions.
 - Keep architecture modular so job sourcing/providers can be extended later.
 - Do not add extra infrastructure unless required by a plan item.
@@ -68,4 +71,4 @@ A task is done when:
 - Code compiles/runs locally
 - Relevant tests pass
 - Docs are updated if behavior/contracts changed
-- Changes align with current phase acceptance criteria in `docs/plan.md`
+- Changes align with acceptance criteria in the active feature plan (`docs/features/<feature-name>/plan.md`) and applicable global rules
