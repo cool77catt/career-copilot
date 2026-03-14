@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { KeyboardEvent, useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -10,6 +12,11 @@ import {
   Divider,
   Paper,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   Tab,
   Tabs,
   TextField,
@@ -19,6 +26,13 @@ import {
 } from "@mui/material";
 
 import { ProfileResponse, autoLogin, fetchProfile, updateProfile } from "../lib/api";
+import {
+  JobProfileTarget,
+  buildJobProfileId,
+  formatTimestamp,
+  readStoredJobProfiles,
+  writeStoredJobProfiles,
+} from "../lib/jobProfiles";
 import { appPalette } from "../lib/theme/palette";
 
 type AuthState = "loading" | "ready" | "error";
@@ -29,6 +43,7 @@ type Stage = {
   description: string;
   phase: string;
   focus: string;
+  href?: string;
 };
 
 const stages: Stage[] = [
@@ -76,6 +91,15 @@ const navItems: Stage[] = [
     description: "Dashboard metrics and trend cards.",
     phase: "Dashboard",
     focus: "KPI snapshot",
+    href: "/",
+  },
+  {
+    id: "profiles",
+    title: "Profiles",
+    description: "User Information and Job-Specific Profiles workspace.",
+    phase: "Phase A",
+    focus: "Profiles shell",
+    href: "/profiles",
   },
   ...stages,
 ];
@@ -193,7 +217,15 @@ function AuthBanner({ authState }: { authState: AuthState }) {
   );
 }
 
-export function AppShell() {
+type AppShellProps = {
+  initialTab?: string;
+};
+
+export function AppShell({ initialTab = "overview" }: AppShellProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const isProfilesRoute = pathname === "/profiles" || pathname.startsWith("/profiles/");
+  const routeProfileId = isProfilesRoute && pathname.startsWith("/profiles/") ? decodeURIComponent(pathname.split("/")[2] || "") : "";
   const [authState, setAuthState] = useState<AuthState>("loading");
   const [profileContent, setProfileContent] = useState("");
   const [profilePath, setProfilePath] = useState("");
@@ -209,7 +241,11 @@ export function AppShell() {
   const [hasResume, setHasResume] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [jobProfiles, setJobProfiles] = useState<JobProfileTarget[]>([]);
+  const [profilesMenuOpen, setProfilesMenuOpen] = useState(isProfilesRoute);
+  const [newJobProfileName, setNewJobProfileName] = useState("");
+  const [jobProfilesReady, setJobProfilesReady] = useState(false);
   const [profileMarkdownView, setProfileMarkdownView] = useState<"raw" | "rendered">("rendered");
   const [profileMessage, setProfileMessage] = useState<{ severity: "success" | "info" | "error"; text: string } | null>(null);
   const theme = useTheme();
@@ -258,6 +294,27 @@ export function AppShell() {
     };
   }, []);
 
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  useEffect(() => {
+    if (isProfilesRoute) {
+      setActiveTab("profiles");
+      setProfilesMenuOpen(true);
+    }
+  }, [isProfilesRoute]);
+
+  useEffect(() => {
+    setJobProfiles(readStoredJobProfiles());
+    setJobProfilesReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!jobProfilesReady) return;
+    writeStoredJobProfiles(jobProfiles);
+  }, [jobProfiles, jobProfilesReady]);
+
   const handleFollowUpAnswerChange = (question: string, answer: string) => {
     setFollowUpAnswers((prev) => ({ ...prev, [question]: answer }));
   };
@@ -284,6 +341,33 @@ export function AppShell() {
       setUpdateLoading(false);
     }
   };
+
+  const handleAddJobProfile = () => {
+    const name = newJobProfileName.trim();
+    if (!name) return;
+    if (jobProfiles.some((profile) => profile.name.toLowerCase() === name.toLowerCase())) {
+      setProfileMessage({ severity: "error", text: "That job profile already exists." });
+      return;
+    }
+
+    const id = buildJobProfileId(name, jobProfiles.map((profile) => profile.id));
+    const now = new Date().toISOString();
+    const nextProfiles = [{ id, name, updatedAt: now }, ...jobProfiles];
+    setJobProfiles(nextProfiles);
+    setNewJobProfileName("");
+    setProfilesMenuOpen(true);
+    setActiveTab("profiles");
+    setProfileMessage({ severity: "success", text: `Added profile target: ${name}` });
+    router.push(`/profiles/${id}`);
+  };
+
+  const handleOpenJobProfile = (profileId: string) => {
+    setActiveTab("profiles");
+    setProfilesMenuOpen(true);
+    router.push(`/profiles/${encodeURIComponent(profileId)}`);
+  };
+
+  const selectedJobProfile = routeProfileId ? jobProfiles.find((profile) => profile.id === routeProfileId) : null;
 
   return (
     <Box
@@ -325,77 +409,217 @@ export function AppShell() {
           <Divider sx={{ borderColor: alpha(appPalette.sidebar.divider, 0.2), mb: 1.6 }} />
 
           <Stack spacing={1}>
-            {navItems.map((item) => (
-              <Box
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    setActiveTab(item.id);
-                  }
-                }}
-                sx={{
-                  p: 1.1,
-                  borderRadius: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  cursor: "pointer",
-                  background:
-                    activeTab === item.id
+            {navItems.map((item) => {
+              const isProfilesItem = item.id === "profiles";
+              const isActive = isProfilesItem ? activeTab === "profiles" || isProfilesRoute : activeTab === item.id;
+
+              if (isProfilesItem) {
+                return (
+                  <Stack key={item.id} spacing={0.7}>
+                    <Box
+                      component={Link}
+                      href="/profiles"
+                      onClick={() => {
+                        setActiveTab("profiles");
+                        setProfilesMenuOpen((current) => !current);
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(event: KeyboardEvent<HTMLElement>) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          setActiveTab("profiles");
+                          setProfilesMenuOpen((current) => !current);
+                        }
+                      }}
+                      sx={{
+                        p: 1.1,
+                        borderRadius: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        cursor: "pointer",
+                        background: isActive
+                          ? `linear-gradient(135deg, ${appPalette.sidebar.nav.activeStart} 0%, ${appPalette.sidebar.nav.activeEnd} 100%)`
+                          : alpha(appPalette.sidebar.nav.base, 0.02),
+                        border: isActive
+                          ? `1px solid ${appPalette.sidebar.nav.activeBorder}`
+                          : `1px solid ${alpha(appPalette.sidebar.nav.border, 0.08)}`,
+                        boxShadow: isActive ? `0 8px 20px ${appPalette.sidebar.nav.activeShadow}` : "none",
+                        transition: "all 140ms ease",
+                        textDecoration: "none",
+                        "&:hover": {
+                          background: isActive
+                            ? `linear-gradient(135deg, ${appPalette.sidebar.nav.activeStart} 0%, ${appPalette.sidebar.nav.activeEnd} 100%)`
+                            : alpha(appPalette.sidebar.nav.base, 0.06),
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: 0.75,
+                          display: "grid",
+                          placeItems: "center",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: isActive ? appPalette.sidebar.nav.iconTextActive : appPalette.sidebar.nav.iconText,
+                          bgcolor: isActive
+                            ? alpha(appPalette.sidebar.nav.iconBgActive, 0.72)
+                            : alpha(appPalette.sidebar.nav.iconBg, 0.08),
+                        }}
+                      >
+                        {item.title.slice(0, 1)}
+                      </Box>
+                      <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: isActive ? 700 : 500,
+                            fontSize: 15,
+                            color: isActive ? appPalette.sidebar.nav.labelActive : appPalette.sidebar.nav.label,
+                            lineHeight: 1.25,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {item.title}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          color: isActive ? appPalette.sidebar.nav.labelActive : appPalette.sidebar.nav.label,
+                          fontSize: 14,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {profilesMenuOpen ? "▾" : "▸"}
+                      </Typography>
+                    </Box>
+
+                    {profilesMenuOpen && (
+                      <Stack spacing={0.6} sx={{ pl: 1.3 }}>
+                        <Box
+                          component={Link}
+                          href="/profiles"
+                          onClick={() => setActiveTab("profiles")}
+                          sx={{
+                            borderRadius: 0.9,
+                            px: 1.1,
+                            py: 0.7,
+                            textDecoration: "none",
+                            border: `1px solid ${alpha(appPalette.sidebar.nav.border, 0.1)}`,
+                            background: pathname === "/profiles" ? alpha(appPalette.sidebar.nav.activeStart, 0.22) : alpha(appPalette.sidebar.nav.base, 0.03),
+                          }}
+                        >
+                          <Typography sx={{ fontSize: 13, fontWeight: 600, color: appPalette.sidebar.nav.label }}>Overview</Typography>
+                        </Box>
+
+                        {jobProfiles.map((profile) => (
+                          <Box
+                            key={profile.id}
+                            component={Link}
+                            href={`/profiles/${encodeURIComponent(profile.id)}`}
+                            onClick={() => setActiveTab("profiles")}
+                            sx={{
+                              borderRadius: 0.9,
+                              px: 1.1,
+                              py: 0.7,
+                              textDecoration: "none",
+                              border: `1px solid ${alpha(appPalette.sidebar.nav.border, 0.1)}`,
+                              background:
+                                routeProfileId === profile.id ? alpha(appPalette.sidebar.nav.activeStart, 0.22) : alpha(appPalette.sidebar.nav.base, 0.03),
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                fontSize: 13,
+                                fontWeight: routeProfileId === profile.id ? 700 : 500,
+                                color: appPalette.sidebar.nav.label,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {profile.name}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Stack>
+                    )}
+                  </Stack>
+                );
+              }
+
+              return (
+                <Box
+                  key={item.id}
+                  component={item.href ? Link : "div"}
+                  href={item.href}
+                  onClick={() => setActiveTab(item.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(event: KeyboardEvent<HTMLElement>) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      setActiveTab(item.id);
+                    }
+                  }}
+                  sx={{
+                    p: 1.1,
+                    borderRadius: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    background: isActive
                       ? `linear-gradient(135deg, ${appPalette.sidebar.nav.activeStart} 0%, ${appPalette.sidebar.nav.activeEnd} 100%)`
                       : alpha(appPalette.sidebar.nav.base, 0.02),
-                  border:
-                    activeTab === item.id
+                    border: isActive
                       ? `1px solid ${appPalette.sidebar.nav.activeBorder}`
                       : `1px solid ${alpha(appPalette.sidebar.nav.border, 0.08)}`,
-                  boxShadow: activeTab === item.id ? `0 8px 20px ${appPalette.sidebar.nav.activeShadow}` : "none",
-                  transition: "all 140ms ease",
-                  "&:hover": {
-                    background:
-                      activeTab === item.id
+                    boxShadow: isActive ? `0 8px 20px ${appPalette.sidebar.nav.activeShadow}` : "none",
+                    transition: "all 140ms ease",
+                    textDecoration: "none",
+                    "&:hover": {
+                      background: isActive
                         ? `linear-gradient(135deg, ${appPalette.sidebar.nav.activeStart} 0%, ${appPalette.sidebar.nav.activeEnd} 100%)`
                         : alpha(appPalette.sidebar.nav.base, 0.06),
-                  },
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: 0.75,
-                    display: "grid",
-                    placeItems: "center",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: activeTab === item.id ? appPalette.sidebar.nav.iconTextActive : appPalette.sidebar.nav.iconText,
-                    bgcolor:
-                      activeTab === item.id
-                        ? alpha(appPalette.sidebar.nav.iconBgActive, 0.72)
-                        : alpha(appPalette.sidebar.nav.iconBg, 0.08),
+                    },
                   }}
                 >
-                  {item.title.slice(0, 1)}
-                </Box>
-                <Box sx={{ minWidth: 0 }}>
-                  <Typography
+                  <Box
                     sx={{
-                      fontWeight: activeTab === item.id ? 700 : 500,
-                      fontSize: 15,
-                      color: activeTab === item.id ? appPalette.sidebar.nav.labelActive : appPalette.sidebar.nav.label,
-                      lineHeight: 1.25,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      width: 22,
+                      height: 22,
+                      borderRadius: 0.75,
+                      display: "grid",
+                      placeItems: "center",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: isActive ? appPalette.sidebar.nav.iconTextActive : appPalette.sidebar.nav.iconText,
+                      bgcolor: isActive ? alpha(appPalette.sidebar.nav.iconBgActive, 0.72) : alpha(appPalette.sidebar.nav.iconBg, 0.08),
                     }}
                   >
-                    {item.title}
-                  </Typography>
+                    {item.title.slice(0, 1)}
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: isActive ? 700 : 500,
+                        fontSize: 15,
+                        color: isActive ? appPalette.sidebar.nav.labelActive : appPalette.sidebar.nav.label,
+                        lineHeight: 1.25,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {item.title}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              );
+            })}
           </Stack>
         </Box>
 
@@ -422,6 +646,136 @@ export function AppShell() {
             </Stack>
 
             <AuthBanner authState={authState} />
+
+            {activeTab === "profiles" && !routeProfileId && (
+              <Box
+                sx={{
+                  display: "grid",
+                  gap: 2,
+                  gridTemplateColumns: { xs: "1fr", xl: "repeat(2, minmax(0, 1fr))" },
+                }}
+              >
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
+                  <Stack spacing={1.2}>
+                    <Typography variant="h6">User Information</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Global intake workspace for LinkedIn, resume(s), additional context, and generated user profile markdown.
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Phase B will attach full ingestion and profile generation controls here.
+                    </Typography>
+                  </Stack>
+                </Paper>
+
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
+                  <Stack spacing={1.4}>
+                    <Typography variant="h6">Job-Specific Profiles</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Overview includes all added job profile targets. Click any profile to open its route-backed workspace.
+                    </Typography>
+
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Add Job Profile"
+                        placeholder="Senior Software Engineer"
+                        value={newJobProfileName}
+                        onChange={(event) => setNewJobProfileName(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            handleAddJobProfile();
+                          }
+                        }}
+                      />
+                      <Button variant="contained" onClick={handleAddJobProfile} disabled={!newJobProfileName.trim()}>
+                        Add
+                      </Button>
+                    </Stack>
+
+                    <Box sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1, overflow: "hidden" }}>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell sx={{ fontWeight: 700 }}>Profile</TableCell>
+                            <TableCell sx={{ fontWeight: 700 }}>Last Updated</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 700 }}>
+                              Action
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {jobProfiles.length ? (
+                            jobProfiles.map((profile) => (
+                              <TableRow
+                                key={profile.id}
+                                hover
+                                sx={{ cursor: "pointer" }}
+                                onClick={() => handleOpenJobProfile(profile.id)}
+                              >
+                                <TableCell>{profile.name}</TableCell>
+                                <TableCell>{formatTimestamp(profile.updatedAt)}</TableCell>
+                                <TableCell align="right">
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleOpenJobProfile(profile.id);
+                                    }}
+                                  >
+                                    Open
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={3}>
+                                <Typography variant="body2" color="text.secondary">
+                                  No job-specific profiles yet. Add one to create a route-backed workspace.
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </Box>
+                  </Stack>
+                </Paper>
+              </Box>
+            )}
+
+            {activeTab === "profiles" && !!routeProfileId && (
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
+                <Stack spacing={1.5}>
+                  <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ xs: "flex-start", sm: "center" }} justifyContent="space-between">
+                    <Box>
+                      <Typography variant="h6">
+                        {selectedJobProfile ? selectedJobProfile.name : "Job Profile Not Found"}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Route: `/profiles/{routeProfileId}`
+                      </Typography>
+                    </Box>
+                    <Button variant="outlined" component={Link} href="/profiles" onClick={() => setActiveTab("profiles")}>
+                      Back to Overview
+                    </Button>
+                  </Stack>
+
+                  {!selectedJobProfile ? (
+                    <Alert severity="warning">
+                      This profile route does not match any saved job profile. Go back to Overview and add it there.
+                    </Alert>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      This per-profile workspace is URL-backed and ready for Phase C/D artifact panels.
+                    </Typography>
+                  )}
+                </Stack>
+              </Paper>
+            )}
 
             {activeTab === "user-profile" && (
             <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
@@ -678,7 +1032,7 @@ export function AppShell() {
               </>
             )}
 
-            {activeTab !== "overview" && activeTab !== "user-profile" && (
+            {activeTab !== "overview" && activeTab !== "user-profile" && activeTab !== "profiles" && (
               <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${theme.palette.divider}` }}>
                 <Stack spacing={1}>
                   <Typography variant="h6">
