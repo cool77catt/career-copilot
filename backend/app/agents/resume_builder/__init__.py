@@ -13,12 +13,15 @@ from app.agents.resume_builder.contracts import (
     ResumeMarkdownGenerateRequest,
     ResumeMarkdownGenerateResult,
 )
+from app.agents.resume_builder.assessment_agent import ResumeAssessmentAgent, ResumeAssessmentAgentError
 from app.agents.resume_builder.jd_to_markdown_agent import (
     JobDescriptionMarkdownAgent,
     JobDescriptionMarkdownAgentError,
 )
 
 __all__ = [
+    "ResumeAssessmentAgent",
+    "ResumeAssessmentAgentError",
     "ClarifyingQuestion",
     "FitAssessment",
     "GapAssessment",

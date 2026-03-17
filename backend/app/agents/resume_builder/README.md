@@ -33,6 +33,16 @@ This package does not yet implement:
 ### Script 2
 - Input model: `ResumeMarkdownGenerateRequest`
 - Output model: `ResumeMarkdownGenerateResult`
+- Agent: `assessment_agent.py`
+- Runner: `assessment_runner.py`
+- CLI: `assessment_cli.py`
+- CLI contract:
+  - `--job-description-file <job-description.md>`
+  - optional context file args for profile/resume/linkedin/additional context
+  - optional `--qa-json-file <qa.json>`
+  - optional `--constraints-json-file <constraints.json>`
+  - `--output-json-path <assessment.json>`
+  - `--output-resume-markdown-path <tailored-resume.md>`
 
 ### Script 3
 - Input model: `ResumeDocxRenderRequest`

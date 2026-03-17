@@ -99,6 +99,11 @@ Run resume builder script 1 directly from CLI:
 ./scripts/run_resume_builder_jd_normalizer.sh --input-file ../tmp/job-description.txt --output-path ../tmp/job-description.md
 ```
 
+Run resume builder script 2 directly from CLI:
+```bash
+./scripts/run_resume_builder_assessment.sh --job-description-file ../tmp/job-description.md --user-profile-file ../tmp/profile.md --current-resume-file ../tmp/resume.md --linkedin-file ../tmp/linkedin.md --qa-json-file ../tmp/qa.json --constraints-json-file ../tmp/constraints.json --output-json-path ../tmp/assessment.json --output-resume-markdown-path ../tmp/tailored-resume.md
+```
+
 ## Testing
 Backend tests:
 ```bash
