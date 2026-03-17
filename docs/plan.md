@@ -12,6 +12,7 @@ Detailed implementation plans live in `docs/features/<feature-name>/plan.md`.
 
 ## Active Feature Plans
 - User Profiles: `docs/features/user-profiles/plan.md`
+- Resume Builder: `docs/features/resume-builder/plan.md`
 
 ## Execution Workflow
 1. Select one active feature to implement.

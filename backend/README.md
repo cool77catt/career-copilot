@@ -10,6 +10,17 @@
 - Set `OPENAI_API_KEY` to enable profile report generation.
 - Optional: set `OPENAI_PROFILE_AGENT_MODEL` (default: `gpt-4.1-mini`).
 
+## Resume builder phase A env
+- `OPENAI_API_KEY`
+- Optional model overrides:
+  - `OPENAI_RESUME_BUILDER_JD_MODEL`
+  - `OPENAI_RESUME_BUILDER_ASSESSMENT_MODEL`
+  - `OPENAI_RESUME_BUILDER_DOCX_MODEL`
+
+## Resume builder phase A status
+- Phase A only defines shared contracts, prompts, and model configuration.
+- Script implementations for the three resume-builder stages are not added yet.
+
 ## Run profile report agent from CLI
 - `uv run python -m app.agents.profile_report_agent.cli --user-id 1`
 

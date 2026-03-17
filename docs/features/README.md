@@ -19,3 +19,4 @@ Only update global docs when a cross-feature rule or project-level sequence chan
 
 ## Current Features
 - `user-profiles`
+- `resume-builder`

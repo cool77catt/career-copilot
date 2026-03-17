@@ -51,6 +51,9 @@ cd backend
 export OPENAI_API_KEY=<your-key>
 # optional override:
 # export OPENAI_PROFILE_AGENT_MODEL=gpt-4.1-mini
+# export OPENAI_RESUME_BUILDER_JD_MODEL=gpt-4.1-mini
+# export OPENAI_RESUME_BUILDER_ASSESSMENT_MODEL=gpt-4.1-mini
+# export OPENAI_RESUME_BUILDER_DOCX_MODEL=gpt-4.1-mini
 ```
 
 2. Initialize **local Postgres** database (idempotent):

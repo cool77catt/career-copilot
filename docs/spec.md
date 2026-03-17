@@ -72,6 +72,7 @@ When working on a feature, resolve conflicts in this order:
 
 ## 10. Feature Registry
 - User Profiles: `docs/features/user-profiles/spec.md`
+- Resume Builder: `docs/features/resume-builder/spec.md`
 
 New features should be added by creating:
 - `docs/features/<feature-name>/spec.md`
