@@ -19,7 +19,11 @@
 
 ## Resume builder phase A status
 - Phase A only defines shared contracts, prompts, and model configuration.
-- Script implementations for the three resume-builder stages are not added yet.
+- Script 1 (job description normalization) is implemented.
+- Scripts 2 and 3 are not implemented yet.
+
+## Run resume builder script 1
+- `uv run python -m app.agents.resume_builder.jd_to_markdown_cli --input-file ../tmp/job-description.txt --output-path ../tmp/job-description.md`
 
 ## Run profile report agent from CLI
 - `uv run python -m app.agents.profile_report_agent.cli --user-id 1`

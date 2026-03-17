@@ -94,6 +94,11 @@ Run profile report agent directly from CLI:
 ./scripts/run_profile_report_agent.sh --user-id 1
 ```
 
+Run resume builder script 1 directly from CLI:
+```bash
+./scripts/run_resume_builder_jd_normalizer.sh --input-file ../tmp/job-description.txt --output-path ../tmp/job-description.md
+```
+
 ## Testing
 Backend tests:
 ```bash

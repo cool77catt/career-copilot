@@ -13,6 +13,10 @@ from app.agents.resume_builder.contracts import (
     ResumeMarkdownGenerateRequest,
     ResumeMarkdownGenerateResult,
 )
+from app.agents.resume_builder.jd_to_markdown_agent import (
+    JobDescriptionMarkdownAgent,
+    JobDescriptionMarkdownAgentError,
+)
 
 __all__ = [
     "ClarifyingQuestion",
@@ -21,6 +25,8 @@ __all__ = [
     "GapItem",
     "JobDescriptionNormalizeRequest",
     "JobDescriptionNormalizeResult",
+    "JobDescriptionMarkdownAgent",
+    "JobDescriptionMarkdownAgentError",
     "QuestionAnswer",
     "ResumeBuilderModelRegistry",
     "ResumeConstraintSet",

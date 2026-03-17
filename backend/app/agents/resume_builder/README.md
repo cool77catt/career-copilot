@@ -8,9 +8,6 @@ This package defines the Phase A contracts for the `resume-builder` feature.
 - Model-selection configuration
 
 This package does not yet implement:
-- OpenAI calls
-- CLI entrypoints
-- File-writing logic
 - `.docx` rendering
 
 ## Planned module layout
@@ -28,6 +25,10 @@ This package does not yet implement:
 ### Script 1
 - Input model: `JobDescriptionNormalizeRequest`
 - Output model: `JobDescriptionNormalizeResult`
+- Agent: `jd_to_markdown_agent.py`
+- Runner: `jd_to_markdown_runner.py`
+- CLI: `jd_to_markdown_cli.py`
+- CLI contract: `--input-file <jd.txt> --output-path <job-description.md>`
 
 ### Script 2
 - Input model: `ResumeMarkdownGenerateRequest`
