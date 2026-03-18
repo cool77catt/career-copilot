@@ -69,6 +69,25 @@ Acceptance-level output expectations:
 - Responsibilities, qualifications, preferred qualifications, location/work mode, compensation, and other important details should be represented when present in the source text.
 - The output should be readable by downstream agents without additional normalization.
 
+## 4.2a Resume Source Import Agent: PDF/DOCX to Markdown
+Purpose:
+- Convert an incoming resume file (`.pdf` or `.docx`) into normalized markdown for downstream resume-builder workflows.
+
+Inputs:
+- Source resume file path
+- Output markdown path
+
+Behavior:
+- Accept `.pdf` and `.docx` resume inputs.
+- Extract source text locally from the file.
+- Normalize the extracted content into clean resume markdown.
+- Preserve the candidate's actual information without inventing new content.
+- Write the resulting markdown to the provided output path.
+
+Outputs:
+- Markdown file at the requested output path
+- Script-friendly success response including the written file path and detected source format
+
 ## 4.3 Agent 2: Fit Assessment, Gap Analysis, Clarifying Questions, and Tailored Resume Markdown
 Purpose:
 - Evaluate candidate fit against a normalized job description and produce a tailored markdown resume.

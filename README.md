@@ -50,6 +50,7 @@ Optional for profile report agent runs:
 cd backend
 export OPENAI_API_KEY=<your-key>
 # optional override:
+# export OPENAI_RESUME_BUILDER_RESUME_IMPORT_MODEL=gpt-4.1-mini
 # export OPENAI_PROFILE_AGENT_MODEL=gpt-4.1-mini
 # export OPENAI_RESUME_BUILDER_JD_MODEL=gpt-4.1-mini
 # export OPENAI_RESUME_BUILDER_ASSESSMENT_MODEL=gpt-4.1-mini
@@ -97,6 +98,11 @@ Run profile report agent directly from CLI:
 Run resume builder script 1 directly from CLI:
 ```bash
 ./scripts/run_resume_builder_jd_normalizer.sh --input-file ../tmp/job-description.txt --output-path ../tmp/job-description.md
+```
+
+Run resume import directly from CLI:
+```bash
+./scripts/run_resume_builder_resume_import.sh --input-resume-file ../tmp/resume.docx --output-markdown-path ../tmp/resume.md
 ```
 
 Run resume builder script 2 directly from CLI:

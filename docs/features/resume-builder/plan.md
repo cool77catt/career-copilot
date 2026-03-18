@@ -2,11 +2,27 @@
 
 ## Goal
 Deliver the `resume-builder` feature as a sequence of script-callable agent prototypes built and validated one at a time:
-1. Job-description normalization script
-2. Fit-assessment and tailored-resume markdown script
-3. Markdown-to-`.docx` rendering script
+1. Resume source import script (`.pdf`/`.docx` -> markdown)
+2. Job-description normalization script
+3. Fit-assessment and tailored-resume markdown script
+4. Markdown-to-`.docx` rendering script
 
 Each script must be completed and validated before the next script is started.
+
+## Phase B0 - Resume Source Import Agent
+### Tasks
+- Implement an agent that accepts a resume source file path (`.pdf` or `.docx`) and an output markdown path.
+- Extract source text from supported file types locally.
+- Normalize extracted text into markdown suitable for downstream resume-builder use.
+- Ensure the agent writes the markdown artifact to disk and returns a script-consumable success result.
+- Define validation behavior for unsupported file types, missing files, unreadable inputs, and invalid output paths.
+- Add focused tests for `.pdf`/`.docx` handling and file-output behavior.
+
+### Acceptance Criteria
+- A script can invoke the agent with a `.pdf` or `.docx` resume file path and an output path.
+- The agent writes normalized markdown to the requested path.
+- Unsupported file types and missing files fail explicitly.
+- Script output is usable as an input artifact for downstream resume-builder workflows.
 
 ## Phase A - Feature Contract and Agent Interface Design
 ### Tasks

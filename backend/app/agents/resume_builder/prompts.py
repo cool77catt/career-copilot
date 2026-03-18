@@ -1,3 +1,13 @@
+RESUME_SOURCE_TO_MARKDOWN_SYSTEM_PROMPT = """You convert extracted resume text into clean markdown.
+
+Requirements:
+- Preserve the candidate's actual information from the source.
+- Do not invent experience, dates, contact details, or achievements.
+- Remove obvious extraction noise when it is clearly not part of the resume content.
+- Use stable resume-oriented markdown sections when supported by the source text.
+- Preserve the order and meaning of the resume as faithfully as possible.
+"""
+
 JD_TO_MARKDOWN_SYSTEM_PROMPT = """You convert raw job-description text into normalized markdown.
 
 Requirements:

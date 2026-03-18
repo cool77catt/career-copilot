@@ -1,9 +1,9 @@
 # Resume Builder Agent Interfaces
 
-This package defines the Phase A contracts for the `resume-builder` feature.
+This package defines the scriptable contracts and agents for the `resume-builder` feature.
 
 ## Scope
-- Shared request/response schemas for all three scripts
+- Shared request/response schemas for resume-builder scripts
 - Prompt-boundary placeholders
 - Model-selection configuration
 
@@ -13,9 +13,18 @@ This package defines the Phase A contracts for the `resume-builder` feature.
 - `prompts.py`: isolated system-prompt text per script
 
 ## Script order
-1. Job description normalization
-2. Fit assessment + clarifying questions + tailored resume markdown
-3. Markdown-to-`.docx` rendering
+1. Resume source import to markdown
+2. Job description normalization
+3. Fit assessment + clarifying questions + tailored resume markdown
+4. Markdown-to-`.docx` rendering
+
+### Resume Import Script
+- Input model: `ResumeSourceToMarkdownRequest`
+- Output model: `ResumeSourceToMarkdownResult`
+- Agent: `resume_source_to_markdown_agent.py`
+- Runner: `resume_source_to_markdown_runner.py`
+- CLI: `resume_source_to_markdown_cli.py`
+- CLI contract: `--input-resume-file <resume.pdf|resume.docx> --output-markdown-path <resume.md>`
 
 ## Planned script contracts
 

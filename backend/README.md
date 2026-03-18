@@ -13,15 +13,20 @@
 ## Resume builder phase A env
 - `OPENAI_API_KEY`
 - Optional model overrides:
+  - `OPENAI_RESUME_BUILDER_RESUME_IMPORT_MODEL`
   - `OPENAI_RESUME_BUILDER_JD_MODEL`
   - `OPENAI_RESUME_BUILDER_ASSESSMENT_MODEL`
   - `OPENAI_RESUME_BUILDER_DOCX_MODEL`
 
 ## Resume builder phase A status
-- Phase A only defines shared contracts, prompts, and model configuration.
+- Resume import script (`.pdf`/`.docx` -> markdown) is implemented.
+- Phase A defines shared contracts, prompts, and model configuration.
 - Script 1 (job description normalization) is implemented.
 - Script 2 (fit assessment + tailored resume markdown) is implemented.
 - Script 3 (markdown-to-docx rendering) is implemented as a deterministic template renderer.
+
+## Run resume builder resume import script
+- `uv run python -m app.agents.resume_builder.resume_source_to_markdown_cli --input-resume-file ../tmp/resume.docx --output-markdown-path ../tmp/resume.md`
 
 ## Run resume builder script 1
 - `uv run python -m app.agents.resume_builder.jd_to_markdown_cli --input-file ../tmp/job-description.txt --output-path ../tmp/job-description.md`

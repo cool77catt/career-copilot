@@ -3,6 +3,7 @@ from app.agents.resume_builder.contracts import (
     GapAssessment,
     GapItem,
     JobDescriptionNormalizeRequest,
+    ResumeSourceToMarkdownRequest,
     ResumeDocxRenderRequest,
     ResumeMarkdownGenerateRequest,
 )
@@ -17,6 +18,16 @@ def test_job_description_request_requires_text_and_output_path():
 
     assert payload.raw_text.startswith("Senior backend engineer")
     assert payload.output_markdown_path.endswith("job-description.md")
+
+
+def test_resume_source_request_requires_input_and_output_paths():
+    payload = ResumeSourceToMarkdownRequest(
+        input_resume_path="storage/resume-builder/resume.docx",
+        output_markdown_path="storage/resume-builder/resume.md",
+    )
+
+    assert payload.input_resume_path.endswith(".docx")
+    assert payload.output_markdown_path.endswith(".md")
 
 
 def test_resume_markdown_request_requires_some_candidate_context():
@@ -57,12 +68,14 @@ def test_docx_render_request_requires_template_and_output_paths():
 
 
 def test_resume_builder_model_registry_reads_settings(monkeypatch):
+    monkeypatch.setattr(settings, "openai_resume_builder_resume_import_model", "gpt-test-import", raising=False)
     monkeypatch.setattr(settings, "openai_resume_builder_jd_model", "gpt-test-jd", raising=False)
     monkeypatch.setattr(settings, "openai_resume_builder_assessment_model", "gpt-test-assess", raising=False)
     monkeypatch.setattr(settings, "openai_resume_builder_docx_model", "gpt-test-docx", raising=False)
 
     registry = ResumeBuilderModelRegistry.from_settings()
 
+    assert registry.resume_import_model == "gpt-test-import"
     assert registry.job_description_model == "gpt-test-jd"
     assert registry.assessment_model == "gpt-test-assess"
     assert registry.docx_model == "gpt-test-docx"

@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     profile_storage_dir: str = "storage/profiles"
     openai_api_key: str | None = None
     openai_profile_agent_model: str = "gpt-4.1-mini"
+    openai_resume_builder_resume_import_model: str = "gpt-4.1-mini"
     openai_resume_builder_jd_model: str = "gpt-4.1-mini"
     openai_resume_builder_assessment_model: str = "gpt-4.1-mini"
     openai_resume_builder_docx_model: str = "gpt-4.1-mini"

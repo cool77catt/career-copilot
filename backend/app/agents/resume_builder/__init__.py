@@ -7,6 +7,8 @@ from app.agents.resume_builder.contracts import (
     JobDescriptionNormalizeRequest,
     JobDescriptionNormalizeResult,
     QuestionAnswer,
+    ResumeSourceToMarkdownRequest,
+    ResumeSourceToMarkdownResult,
     ResumeConstraintSet,
     ResumeDocxRenderRequest,
     ResumeDocxRenderResult,
@@ -19,6 +21,10 @@ from app.agents.resume_builder.jd_to_markdown_agent import (
     JobDescriptionMarkdownAgentError,
 )
 from app.agents.resume_builder.docx_renderer import ResumeDocxRenderer, ResumeDocxRendererError
+from app.agents.resume_builder.resume_source_to_markdown_agent import (
+    ResumeSourceToMarkdownAgent,
+    ResumeSourceToMarkdownAgentError,
+)
 
 __all__ = [
     "ResumeAssessmentAgent",
@@ -32,6 +38,10 @@ __all__ = [
     "JobDescriptionMarkdownAgent",
     "JobDescriptionMarkdownAgentError",
     "QuestionAnswer",
+    "ResumeSourceToMarkdownAgent",
+    "ResumeSourceToMarkdownAgentError",
+    "ResumeSourceToMarkdownRequest",
+    "ResumeSourceToMarkdownResult",
     "ResumeDocxRenderer",
     "ResumeDocxRendererError",
     "ResumeBuilderModelRegistry",

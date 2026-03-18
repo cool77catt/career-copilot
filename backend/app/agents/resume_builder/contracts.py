@@ -10,6 +10,18 @@ class QuestionAnswer(BaseModel):
     answer: str = Field(min_length=1)
 
 
+class ResumeSourceToMarkdownRequest(BaseModel):
+    input_resume_path: str = Field(min_length=1)
+    output_markdown_path: str = Field(min_length=1)
+
+
+class ResumeSourceToMarkdownResult(BaseModel):
+    input_resume_path: str = Field(min_length=1)
+    output_markdown_path: str = Field(min_length=1)
+    source_format: Literal["pdf", "docx"]
+    markdown_content: str = Field(min_length=1)
+
+
 class JobDescriptionNormalizeRequest(BaseModel):
     raw_text: str = Field(min_length=1)
     output_markdown_path: str = Field(min_length=1)
