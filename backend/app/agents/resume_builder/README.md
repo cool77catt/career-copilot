@@ -7,9 +7,6 @@ This package defines the Phase A contracts for the `resume-builder` feature.
 - Prompt-boundary placeholders
 - Model-selection configuration
 
-This package does not yet implement:
-- `.docx` rendering
-
 ## Planned module layout
 - `contracts.py`: script input/output models shared by runners and tests
 - `config.py`: model-selection registry sourced from settings
@@ -47,6 +44,10 @@ This package does not yet implement:
 ### Script 3
 - Input model: `ResumeDocxRenderRequest`
 - Output model: `ResumeDocxRenderResult`
+- Renderer: `docx_renderer.py`
+- Runner: `docx_runner.py`
+- CLI: `render_docx_cli.py`
+- CLI contract: `--resume-markdown-file <tailored-resume.md> --template-docx-file <template.docx> --output-docx-path <tailored-resume.docx>`
 
 ## Integration rule
 Runners, CLIs, and future API handlers should depend on these contracts rather than defining duplicate payload shapes.

@@ -85,10 +85,9 @@ def test_runner_rejects_directory_output_path(tmp_path):
         )
 
 
-def test_cli_reads_input_file_writes_markdown_and_prints_json(tmp_path, capsys):
-    input_path = tmp_path / "job.txt"
+def test_cli_returns_error_when_input_file_is_missing(tmp_path, capsys):
+    input_path = tmp_path / "missing-job.txt"
     output_path = tmp_path / "job.md"
-    input_path.write_text("Own platform APIs and improve reliability.", encoding="utf-8")
 
     exit_code = main(
         [

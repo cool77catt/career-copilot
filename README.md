@@ -104,6 +104,11 @@ Run resume builder script 2 directly from CLI:
 ./scripts/run_resume_builder_assessment.sh --job-description-file ../tmp/job-description.md --user-profile-file ../tmp/profile.md --current-resume-file ../tmp/resume.md --linkedin-file ../tmp/linkedin.md --qa-json-file ../tmp/qa.json --constraints-json-file ../tmp/constraints.json --output-json-path ../tmp/assessment.json --output-resume-markdown-path ../tmp/tailored-resume.md
 ```
 
+Run resume builder script 3 directly from CLI:
+```bash
+./scripts/run_resume_builder_render_docx.sh --resume-markdown-file ../tmp/tailored-resume.md --template-docx-file ../tmp/template.docx --output-docx-path ../tmp/tailored-resume.docx
+```
+
 ## Testing
 Backend tests:
 ```bash

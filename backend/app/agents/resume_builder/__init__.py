@@ -18,6 +18,7 @@ from app.agents.resume_builder.jd_to_markdown_agent import (
     JobDescriptionMarkdownAgent,
     JobDescriptionMarkdownAgentError,
 )
+from app.agents.resume_builder.docx_renderer import ResumeDocxRenderer, ResumeDocxRendererError
 
 __all__ = [
     "ResumeAssessmentAgent",
@@ -31,6 +32,8 @@ __all__ = [
     "JobDescriptionMarkdownAgent",
     "JobDescriptionMarkdownAgentError",
     "QuestionAnswer",
+    "ResumeDocxRenderer",
+    "ResumeDocxRendererError",
     "ResumeBuilderModelRegistry",
     "ResumeConstraintSet",
     "ResumeDocxRenderRequest",
