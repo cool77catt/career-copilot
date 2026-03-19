@@ -4,7 +4,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.agents.resume_builder.assessment_agent import ResumeAssessmentAgent, ResumeAssessmentAgentError
+from app.agents.resume_builder.assessment_agent import (
+    ResumeAssessmentAgent,
+    ResumeAssessmentAgentError,
+    _render_user_prompt,
+)
 from app.agents.resume_builder.assessment_cli import main
 from app.agents.resume_builder.assessment_runner import run_resume_assessment_and_write_outputs
 from app.agents.resume_builder.contracts import ResumeMarkdownGenerateRequest, ResumeMarkdownGenerateResult
@@ -78,6 +82,20 @@ def test_assessment_agent_uses_structured_parse_and_returns_result():
     assert result == expected
     assert client.responses.calls[0]["model"] == "test-assessment-model"
     assert client.responses.calls[0]["text_format"] is ResumeMarkdownGenerateResult
+
+
+def test_assessment_prompt_emphasizes_resume_rewrite_not_passthrough():
+    prompt = _render_user_prompt(
+        ResumeMarkdownGenerateRequest(
+            job_description_markdown="# Job Description\nNeed FastAPI and AWS.",
+            current_resume_markdown="# Resume\nBuilt APIs.",
+        )
+    )
+
+    assert "Do not echo the current resume back unchanged." in prompt
+    assert "Optimize for callback likelihood." in prompt
+    assert "Never invent unsupported experience or outcomes." in prompt
+    assert "- Max pages: Default to 2" in prompt
 
 
 def test_assessment_agent_requires_api_key_without_injected_client(monkeypatch):

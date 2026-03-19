@@ -54,7 +54,16 @@ class ResumeAssessmentAgent:
 
 def _render_user_prompt(request: ResumeMarkdownGenerateRequest) -> str:
     return (
-        "Analyze candidate fit against the target job description and return the structured response schema.\n\n"
+        "Analyze candidate fit against the target job description and return the structured response schema.\n"
+        "Your main resume task is to rewrite the resume so it is specifically tailored to this job and maximizes callback likelihood.\n"
+        "Do not echo the current resume back unchanged. Rewrite from the available evidence.\n\n"
+        "Resume generation goals:\n"
+        "- Optimize for callback likelihood.\n"
+        "- Preserve only evidence that strengthens fit for this role.\n"
+        "- Improve ATS match without keyword stuffing.\n"
+        "- Keep wording concise and high-signal.\n"
+        "- Use declarative phrasing only.\n"
+        "- Prefer a two-page resume unless explicit constraints say otherwise.\n\n"
         "## Job Description Markdown\n"
         f"{request.job_description_markdown.strip()}\n\n"
         "## User Profile Markdown\n"
@@ -68,7 +77,13 @@ def _render_user_prompt(request: ResumeMarkdownGenerateRequest) -> str:
         "## Question and Answer Context\n"
         f"{_render_question_answers(request.question_answers)}\n\n"
         "## Resume Constraints\n"
-        f"{_render_constraints(request.constraints)}\n"
+        f"{_render_constraints(request.constraints)}\n\n"
+        "Expected behavior for `resume_markdown`:\n"
+        "- Rebuild the resume around the target role's requirements.\n"
+        "- Reorder emphasis toward the most relevant experience and skills.\n"
+        "- Tighten bullets and summary language for recruiter readability.\n"
+        "- Omit weak or irrelevant detail when it does not support this role.\n"
+        "- Never invent unsupported experience or outcomes.\n"
     )
 
 
@@ -97,7 +112,7 @@ def _render_constraints(constraints: ResumeConstraintSet) -> str:
 
     return (
         f"- Section order: {sections}\n"
-        f"- Max pages: {constraints.max_pages if constraints.max_pages is not None else 'Not specified'}\n"
+        f"- Max pages: {constraints.max_pages if constraints.max_pages is not None else 'Default to 2'}\n"
         f"- Tone: {constraints.tone or 'Not specified'}\n"
         f"- Required inclusions: {required}\n"
         f"- Prohibited claims: {prohibited}\n"

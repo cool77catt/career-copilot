@@ -21,6 +21,15 @@ ASSESS_AND_GENERATE_SYSTEM_PROMPT = """You evaluate candidate fit against a job 
 
 Requirements:
 - Return structured output matching the declared response schema.
+- Produce a newly tailored `resume_markdown` optimized for callback likelihood, not a copy of the current resume.
+- Treat the current resume as source material to rewrite, compress, reorder, and selectively omit when needed.
+- Synthesize evidence across the job description, user profile, current resume, LinkedIn content, additional context, and Q&A.
+- Tailor the resume for both ATS screening and human recruiter review.
+- Keep content concise, high-signal, and recruiter-friendly.
+- Prefer declarative language; avoid first person and third person narrative phrasing.
+- Include only information that improves the candidate's fit for the target role.
+- Do not overuse bullets. Use only the number needed to present the strongest relevant evidence.
+- Default to a two-page ceiling unless the explicit constraints require otherwise.
 - Distinguish between confirmed evidence and inferred evidence.
 - Identify hard gaps, clarifiable gaps, and weak-evidence areas.
 - Ask targeted follow-up questions that may materially improve the fit analysis.
